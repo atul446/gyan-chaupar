@@ -82,7 +82,7 @@ function drawRealLadder(x1, y1, x2, y2) {
     let r2x2 = x2 - nx*W/2, r2y2 = y2 - ny*W/2;
     
     let html = `
-    <g filter="drop-shadow(0px 3px 3px rgba(0,0,0,0.8))">
+    <g filter="drop-shadow(0px 3px 3px rgba(0,0,0,0.8)) drop-shadow(0px 0px 6px rgba(249, 216, 119, 0.8))">
         <line x1="${r1x1}" y1="${r1y1}" x2="${r1x2}" y2="${r1y2}" stroke="url(#ladder-grad)" stroke-width="0.8" stroke-linecap="round"/>
         <line x1="${r2x1}" y1="${r2y1}" x2="${r2x2}" y2="${r2y2}" stroke="url(#ladder-grad)" stroke-width="0.8" stroke-linecap="round"/>
     `;
@@ -118,7 +118,7 @@ function drawRealSnake(x1, y1, x2, y2) {
     let thickness = 3.5;
     
     let html = `
-    <g filter="drop-shadow(0px 6px 4px rgba(0,0,0,0.8))">
+    <g filter="drop-shadow(0px 6px 4px rgba(0,0,0,0.8)) drop-shadow(0px 0px 8px rgba(255, 71, 102, 0.8))">
         <!-- Body base -->
         <path d="M ${x1} ${y1} C ${cx1} ${cy1} ${cx2} ${cy2} ${x2} ${y2}" fill="none" stroke="url(#snake-grad)" stroke-width="${thickness}" stroke-linecap="round" />
         <!-- Body texture pattern (venomous stripes) -->
@@ -189,7 +189,7 @@ function drawConnections() {
         svgHTML += drawRealSnake(cx1, cy1, cx2, cy2);
     }
     
-    return `<svg id="connections" viewBox="0 0 100 100" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5; opacity:0.65;">${svgHTML}</svg>`;
+    return `<svg id="connections" viewBox="0 0 100 100" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5; opacity:0.75;">${svgHTML}</svg>`;
 }
 
 function initBoard() {
