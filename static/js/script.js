@@ -106,45 +106,55 @@ function drawRealSnake(x1, y1, x2, y2) {
     let dy = y2 - y1;
     let L = Math.sqrt(dx*dx + dy*dy);
     
-    let midx = (x1 + x2)/2;
-    let midy = (y1 + y2)/2;
     let nx = -dy/L, ny = dx/L;
-    let bend = L * 0.25; 
-    // Alternate snake bends magically based on length parity
-    if(Math.floor(L) % 2 === 0) bend = -bend;
-    let cx = midx + nx * bend;
-    let cy = midy + ny * bend;
+    let bend = L * 0.22; 
     
-    let thickness = 2.5;
+    let cx1 = x1 + dx * 0.33 + nx * bend;
+    let cy1 = y1 + dy * 0.33 + ny * bend;
+    
+    let cx2 = x1 + dx * 0.66 - nx * bend;
+    let cy2 = y1 + dy * 0.66 - ny * bend;
+    
+    let thickness = 3.5;
     
     let html = `
-    <g filter="drop-shadow(0px 4px 4px rgba(0,0,0,0.8))">
+    <g filter="drop-shadow(0px 6px 4px rgba(0,0,0,0.8))">
         <!-- Body base -->
-        <path d="M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}" fill="none" stroke="url(#snake-grad)" stroke-width="${thickness}" stroke-linecap="round" />
-        <!-- Body texture pattern -->
-        <path d="M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}" fill="none" stroke="#330000" stroke-width="0.8" stroke-dasharray="0.5,1.5" stroke-linecap="round" />
+        <path d="M ${x1} ${y1} C ${cx1} ${cy1} ${cx2} ${cy2} ${x2} ${y2}" fill="none" stroke="url(#snake-grad)" stroke-width="${thickness}" stroke-linecap="round" />
+        <!-- Body texture pattern (venomous stripes) -->
+        <path d="M ${x1} ${y1} C ${cx1} ${cy1} ${cx2} ${cy2} ${x2} ${y2}" fill="none" stroke="#ffcc00" stroke-width="1.2" stroke-dasharray="1.5,4" stroke-linecap="round" />
     `;
     
-    let dirX = x1 - cx;
-    let dirY = y1 - cy;
+    let dirX = x1 - cx1;
+    let dirY = y1 - cy1;
     let ang = Math.atan2(dirY, dirX) * 180 / Math.PI;
     
     let head = `
     <g transform="translate(${x1}, ${y1}) rotate(${ang})">
-        <!-- Tongue -->
-        <path d="M 1 0 L 2.5 0 M 2.5 0 L 3 -0.5 M 2.5 0 L 3 0.5" stroke="#ff0000" stroke-width="0.2" fill="none" stroke-linecap="round" filter="drop-shadow(0px 0px 1px red)"/>
+        <!-- Forked Tongue -->
+        <path d="M 2.5 0 L 4 0 M 4 0 L 4.8 -0.6 M 4 0 L 4.8 0.6" stroke="#ff0000" stroke-width="0.3" fill="none" stroke-linecap="round" filter="drop-shadow(0px 0px 1px red)"/>
         <!-- Head Polygon -->
-        <polygon points="-1,-1 1.5,0 -1,1 -1.5,0" fill="url(#snake-grad)" stroke="#330000" stroke-width="0.2"/>
-        <!-- Eyes -->
-        <circle cx="0.2" cy="-0.5" r="0.25" fill="#ffcc00"/>
-        <circle cx="0.2" cy="0.5" r="0.25" fill="#ffcc00"/>
-        <!-- Pupil -->
-        <circle cx="0.3" cy="-0.5" r="0.1" fill="black"/>
-        <circle cx="0.3" cy="0.5" r="0.1" fill="black"/>
+        <path d="M -1.5 -1.5 Q 0.5 -1.8 2.5 0 Q 0.5 1.8 -1.5 1.5 C -2.5 1 -2.5 -1 -1.5 -1.5 Z" fill="url(#snake-grad)" stroke="#220000" stroke-width="0.3"/>
+        <!-- Glowing Eyes -->
+        <circle cx="0.5" cy="-0.8" r="0.4" fill="#ffcc00" filter="drop-shadow(0 0 1px yellow)"/>
+        <circle cx="0.5" cy="0.8" r="0.4" fill="#ffcc00" filter="drop-shadow(0 0 1px yellow)"/>
+        <!-- Slit Pupils -->
+        <ellipse cx="0.6" cy="-0.8" rx="0.1" ry="0.3" fill="black"/>
+        <ellipse cx="0.6" cy="0.8" rx="0.1" ry="0.3" fill="black"/>
     </g>
     `;
     
-    return html + head + `</g>`;
+    let tDirX = x2 - cx2;
+    let tDirY = y2 - cy2;
+    let tAng = Math.atan2(tDirY, tDirX) * 180 / Math.PI;
+    
+    let tail = `
+    <g transform="translate(${x2}, ${y2}) rotate(${tAng})">
+        <polygon points="-0.5,-1.75 4.5,0 -0.5,1.75" fill="#7a0018"/>
+    </g>
+    `;
+    
+    return html + tail + head + `</g>`;
 }
 
 function drawConnections() {
@@ -194,24 +204,20 @@ function initBoard() {
 
         cols.forEach(num => {
             let cls = 'board-cell';
-            let overlay = '';
             
             let stageIndex = Math.ceil(num / 20) - 1;
             cls += ` stage-${stageIndex}`;
 
             if (ladders[num]) {
                 cls += ' has-ladder';
-                overlay = `<span style="font-size:0.7em; opacity:0.8; display:block; margin-top:-5px; color:var(--success)">➔${ladders[num].to}</span>`;
             }
             if (snakes[num]) {
                 cls += ' has-snake';
-                overlay = `<span style="font-size:0.7em; opacity:0.8; display:block; margin-top:-5px; color:var(--danger)">➔${snakes[num].to}</span>`;
             }
 
             cellsHTML += `<div class="${cls}" data-cell="${num}">
                 <div style="text-align:center;">
                     ${num}
-                    ${overlay}
                 </div>
             </div>`;
         });
