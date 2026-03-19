@@ -68,33 +68,115 @@ function getCoordinates(cell) {
     return { top: (9 - row) * 10, left: col * 10 };
 }
 
-function drawConnections() {
-    let svgHTML = '';
+function drawRealLadder(x1, y1, x2, y2) {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    let L = Math.sqrt(dx*dx + dy*dy);
+    let ux = dx/L, uy = dy/L;
+    let nx = -uy, ny = ux;
+    let W = 2.5; 
     
-    // Ladders (Green dashed line + up arrow)
+    let r1x1 = x1 + nx*W/2, r1y1 = y1 + ny*W/2;
+    let r1x2 = x2 + nx*W/2, r1y2 = y2 + ny*W/2;
+    let r2x1 = x1 - nx*W/2, r2y1 = y1 - ny*W/2;
+    let r2x2 = x2 - nx*W/2, r2y2 = y2 - ny*W/2;
+    
+    let html = `
+    <g filter="drop-shadow(0px 3px 3px rgba(0,0,0,0.8))">
+        <line x1="${r1x1}" y1="${r1y1}" x2="${r1x2}" y2="${r1y2}" stroke="url(#ladder-grad)" stroke-width="0.8" stroke-linecap="round"/>
+        <line x1="${r2x1}" y1="${r2y1}" x2="${r2x2}" y2="${r2y2}" stroke="url(#ladder-grad)" stroke-width="0.8" stroke-linecap="round"/>
+    `;
+    
+    let rungSpacing = 2.5;
+    let numRungs = Math.floor(L / rungSpacing);
+    for (let i = 1; i < numRungs; i++) {
+        let rx = x1 + ux * i * rungSpacing;
+        let ry = y1 + uy * i * rungSpacing;
+        let p1x = rx + nx*W/2, p1y = ry + ny*W/2;
+        let p2x = rx - nx*W/2, p2y = ry - ny*W/2;
+        html += `<line x1="${p1x}" y1="${p1y}" x2="${p2x}" y2="${p2y}" stroke="#d6a96e" stroke-width="0.6" stroke-linecap="round"/>`;
+    }
+    
+    html += `</g>`;
+    return html;
+}
+
+function drawRealSnake(x1, y1, x2, y2) {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    let L = Math.sqrt(dx*dx + dy*dy);
+    
+    let midx = (x1 + x2)/2;
+    let midy = (y1 + y2)/2;
+    let nx = -dy/L, ny = dx/L;
+    let bend = L * 0.25; 
+    // Alternate snake bends magically based on length parity
+    if(Math.floor(L) % 2 === 0) bend = -bend;
+    let cx = midx + nx * bend;
+    let cy = midy + ny * bend;
+    
+    let thickness = 2.5;
+    
+    let html = `
+    <g filter="drop-shadow(0px 4px 4px rgba(0,0,0,0.8))">
+        <!-- Body base -->
+        <path d="M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}" fill="none" stroke="url(#snake-grad)" stroke-width="${thickness}" stroke-linecap="round" />
+        <!-- Body texture pattern -->
+        <path d="M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}" fill="none" stroke="#330000" stroke-width="0.8" stroke-dasharray="0.5,1.5" stroke-linecap="round" />
+    `;
+    
+    let dirX = x1 - cx;
+    let dirY = y1 - cy;
+    let ang = Math.atan2(dirY, dirX) * 180 / Math.PI;
+    
+    let head = `
+    <g transform="translate(${x1}, ${y1}) rotate(${ang})">
+        <!-- Tongue -->
+        <path d="M 1 0 L 2.5 0 M 2.5 0 L 3 -0.5 M 2.5 0 L 3 0.5" stroke="#ff0000" stroke-width="0.2" fill="none" stroke-linecap="round" filter="drop-shadow(0px 0px 1px red)"/>
+        <!-- Head Polygon -->
+        <polygon points="-1,-1 1.5,0 -1,1 -1.5,0" fill="url(#snake-grad)" stroke="#330000" stroke-width="0.2"/>
+        <!-- Eyes -->
+        <circle cx="0.2" cy="-0.5" r="0.25" fill="#ffcc00"/>
+        <circle cx="0.2" cy="0.5" r="0.25" fill="#ffcc00"/>
+        <!-- Pupil -->
+        <circle cx="0.3" cy="-0.5" r="0.1" fill="black"/>
+        <circle cx="0.3" cy="0.5" r="0.1" fill="black"/>
+    </g>
+    `;
+    
+    return html + head + `</g>`;
+}
+
+function drawConnections() {
+    let svgHTML = `
+    <defs>
+        <linearGradient id="snake-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff4766" />
+            <stop offset="100%" stop-color="#7a0018" />
+        </linearGradient>
+        <linearGradient id="ladder-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f9d877" />
+            <stop offset="100%" stop-color="#ab8220" />
+        </linearGradient>
+    </defs>
+    `;
+    
     for (let start in ladders) {
         let end = ladders[start].to;
         let c1 = getCoordinates(parseInt(start));
         let c2 = getCoordinates(end);
         let cy1 = c1.top + 5, cx1 = c1.left + 5;
         let cy2 = c2.top + 5, cx2 = c2.left + 5;
-        
-        svgHTML += `<line x1="${cx1}" y1="${cy1}" x2="${cx2}" y2="${cy2}" stroke="rgba(0, 255, 170, 0.4)" stroke-width="0.8" stroke-dasharray="1"/>`;
-        svgHTML += `<circle cx="${cx2}" cy="${cy2}" r="1" fill="var(--success)"/>`;
+        svgHTML += drawRealLadder(cx1, cy1, cx2, cy2);
     }
     
-    // Snakes (Red wavy/curved line + down arrow)
     for (let start in snakes) {
         let end = snakes[start].to;
         let c1 = getCoordinates(parseInt(start));
         let c2 = getCoordinates(end);
         let cy1 = c1.top + 5, cx1 = c1.left + 5;
         let cy2 = c2.top + 5, cx2 = c2.left + 5;
-        
-        let midx = (cx1 + cx2)/2 + 10;
-        let midy = (cy1 + cy2)/2 - 10;
-        svgHTML += `<path d="M ${cx1} ${cy1} Q ${midx} ${midy} ${cx2} ${cy2}" fill="none" stroke="rgba(255, 71, 102, 0.4)" stroke-width="0.8"/>`;
-        svgHTML += `<circle cx="${cx2}" cy="${cy2}" r="1" fill="var(--danger)"/>`;
+        svgHTML += drawRealSnake(cx1, cy1, cx2, cy2);
     }
     
     return `<svg id="connections" viewBox="0 0 100 100" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;">${svgHTML}</svg>`;
