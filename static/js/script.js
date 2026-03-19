@@ -17,10 +17,10 @@ const TOTAL_TILES = 100;
 const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 const availableAvatars = [
-    { id: 'sadhu', name: 'The Ascetic', emoji: '🧘‍♂️', color: '#8a79ff', glow: 'rgba(138, 121, 255, 0.7)' },
-    { id: 'raja', name: 'The King', emoji: '🤴', color: '#f9d877', glow: 'rgba(249, 216, 119, 0.7)' },
-    { id: 'guru', name: 'The Teacher', emoji: '👩‍🏫', color: '#00ffaa', glow: 'rgba(0, 255, 170, 0.7)' },
-    { id: 'balak', name: 'The Child', emoji: '🧒', color: '#ff4766', glow: 'rgba(255, 71, 102, 0.7)' }
+    { id: 'sadhu', name: 'The Ascetic', imgSrc: 'static/img/avatar_ascetic_1773934187252.png', color: '#8a79ff', glow: 'rgba(138, 121, 255, 0.7)' },
+    { id: 'raja', name: 'The King', imgSrc: 'static/img/avatar_king_1773934495950.png', color: '#f9d877', glow: 'rgba(249, 216, 119, 0.7)' },
+    { id: 'guru', name: 'The Teacher', imgSrc: 'static/img/avatar_teacher_1773934540387.png', color: '#00ffaa', glow: 'rgba(0, 255, 170, 0.7)' },
+    { id: 'balak', name: 'The Child', imgSrc: 'static/img/avatar_child_1773934674351.png', color: '#ff4766', glow: 'rgba(255, 71, 102, 0.7)' }
 ];
 let selectedAvatars = [];
 
@@ -223,12 +223,13 @@ function handleEvent(eventData, type) {
     let pIndex = currentPlayerIndex;
     let token = players[pIndex].tokenEl;
     
-    // Floating Text
-    let floatText = document.createElement('div');
-    floatText.className = 'floating-text';
-    floatText.style.left = `calc(${token.style.left} - 20px)`;
-    floatText.style.top = token.style.top;
-    boardEl.appendChild(floatText);
+    // Spawn Animated Image Effect
+    let floatImg = document.createElement('img');
+    floatImg.className = 'floating-img';
+    // Position effect perfectly centered above the token
+    floatImg.style.left = `calc(${token.style.left} - 60px)`;
+    floatImg.style.top = `calc(${token.style.top} - 80px)`;
+    boardEl.appendChild(floatImg);
     
     if (type === 'ladder') {
         actionText.innerText = `Virtue! Ascending...`;
@@ -236,9 +237,7 @@ function handleEvent(eventData, type) {
         boardEl.classList.add('board-ladder-glow');
         token.classList.add('ladder-animation');
         
-        floatText.innerText = '✨ Virtue!';
-        floatText.style.color = 'var(--success)';
-        floatText.style.textShadow = '0 0 10px var(--success)';
+        floatImg.src = 'static/img/virtue_glow_1773935184066.png';
         
         updateKarma(pIndex, -15);
     } else {
@@ -247,14 +246,12 @@ function handleEvent(eventData, type) {
         boardEl.classList.add('board-snake-glow');
         token.classList.add('snake-animation');
         
-        floatText.innerText = '🐍 Vice!';
-        floatText.style.color = 'var(--danger)';
-        floatText.style.textShadow = '0 0 10px var(--danger)';
+        floatImg.src = 'static/img/vice_snake_1773935357939.png';
         
         updateKarma(pIndex, 15);
     }
 
-    setTimeout(() => floatText.remove(), 1500);
+    setTimeout(() => floatImg.remove(), 1500);
 
     // Wait for the animation to finish before moving the piece and showing the modal
     setTimeout(() => {
@@ -340,7 +337,7 @@ function renderAvatarSelection() {
         let isSelected = selectedAvatars.find(a => a.id === av.id);
         avatarContainer.innerHTML += `
             <div class="avatar-card ${isSelected ? 'selected' : ''}" data-id="${av.id}">
-                <div class="avatar-emoji">${av.emoji}</div>
+                <img src="${av.imgSrc}" alt="${av.name}" style="width:60px; height:60px; border-radius:50%; object-fit:cover; margin-bottom:5px; border:2px solid ${av.color}; box-shadow: 0 0 10px ${av.glow}">
                 <div class="avatar-name" style="color:${av.color}">${av.name}</div>
             </div>`;
     });
@@ -377,14 +374,11 @@ beginBtn.addEventListener('click', () => {
     selectedAvatars.forEach((av, i) => {
         let token = document.createElement('div');
         token.className = `player-token`;
-        token.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), ${av.color}88)`;
+        token.style.backgroundImage = `url(${av.imgSrc})`;
+        token.style.backgroundSize = `cover`;
+        token.style.backgroundPosition = `center`;
         token.style.border = `2px solid ${av.color}`;
         token.style.boxShadow = `0 0 15px 5px ${av.glow}, inset -2px -2px 10px rgba(0,0,0,0.5)`;
-        token.style.display = 'flex';
-        token.style.justifyContent = 'center';
-        token.style.alignItems = 'center';
-        token.style.fontSize = '1.5rem';
-        token.innerText = av.emoji;
         
         boardEl.appendChild(token);
         

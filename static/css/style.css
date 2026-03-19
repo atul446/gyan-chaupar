@@ -450,22 +450,23 @@ h3 {
     z-index: 50 !important;
 }
 
-.floating-text {
+.floating-img {
     position: absolute;
-    font-size: 1.5rem;
-    font-weight: 800;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
     pointer-events: none;
     z-index: 100;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    animation: floatUpAndFade 1.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    background-color: var(--bg-color);
+    animation: floatUpAndFadeImg 1.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes floatUpAndFade {
-    0% { transform: translateY(0) scale(0.5); opacity: 0; }
-    20% { transform: translateY(-15px) scale(1.1); opacity: 1; }
-    80% { transform: translateY(-50px) scale(1); opacity: 1; }
-    100% { transform: translateY(-70px) scale(0.8); opacity: 0; }
+@keyframes floatUpAndFadeImg {
+    0% { transform: scale(0); opacity: 0; filter: blur(10px); }
+    30% { transform: scale(1.1); opacity: 1; filter: blur(0px); }
+    80% { transform: scale(1); opacity: 0.9; filter: blur(0px); }
+    100% { transform: scale(1.5); opacity: 0; filter: blur(15px); }
 }
 
 .avatar-card {
