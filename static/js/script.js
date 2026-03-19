@@ -544,3 +544,29 @@ beginBtn.addEventListener('click', () => {
 });
 
 renderAvatarSelection();
+
+// Keyboard Accessibility for Desktop (Space / Enter)
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'Enter') {
+        // Prevent default browser scrolling when pressing space
+        if (e.code === 'Space') {
+            e.preventDefault();
+        }
+        
+        const startModal = document.getElementById('start-modal');
+        // 1. If start modal is open and the begin button is enabled
+        if (startModal && startModal.style.display !== 'none') {
+            if (!beginBtn.disabled) {
+                beginBtn.click();
+            }
+        } 
+        // 2. If an event modal is open
+        else if (modal && !modal.classList.contains('hidden')) {
+            modalClose.click();
+        } 
+        // 3. Otherwise, if the roll button is available and enabled
+        else if (rollBtn && !rollBtn.disabled && rollBtn.style.display !== 'none') {
+            rollBtn.click();
+        }
+    }
+});
