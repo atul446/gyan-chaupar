@@ -452,12 +452,12 @@ h3 {
 
 .floating-img {
     position: absolute;
-    width: 150px;
-    height: 150px;
+    width: 250px;
+    height: 250px;
     border-radius: 50%;
     pointer-events: none;
     z-index: 100;
-    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    box-shadow: 0 0 80px rgba(0,0,0,0.9);
     background-color: var(--bg-color);
     animation: floatUpAndFadeImg 1.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -465,8 +465,8 @@ h3 {
 @keyframes floatUpAndFadeImg {
     0% { transform: scale(0); opacity: 0; filter: blur(10px); }
     30% { transform: scale(1.1); opacity: 1; filter: blur(0px); }
-    80% { transform: scale(1); opacity: 0.9; filter: blur(0px); }
-    100% { transform: scale(1.5); opacity: 0; filter: blur(15px); }
+    80% { transform: scale(1.0); opacity: 0.9; filter: blur(0px); }
+    100% { transform: scale(1.4); opacity: 0; filter: blur(15px); }
 }
 
 .avatar-card {

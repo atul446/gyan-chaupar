@@ -364,9 +364,9 @@ function handleEvent(eventData, type) {
     // Spawn Animated Image Effect
     let floatImg = document.createElement('img');
     floatImg.className = 'floating-img';
-    // Position effect perfectly centered above the token
-    floatImg.style.left = `calc(${token.style.left} - 60px)`;
-    floatImg.style.top = `calc(${token.style.top} - 80px)`;
+    // Position effect perfectly centered above the token (Token is ~60px, img is 250px)
+    floatImg.style.left = `calc(${token.style.left} - 95px)`;
+    floatImg.style.top = `calc(${token.style.top} - 120px)`;
     boardEl.appendChild(floatImg);
     
     if (type === 'ladder') {
