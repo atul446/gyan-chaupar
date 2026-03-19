@@ -1,0 +1,426 @@
+:root {
+    --bg-color: #0b0914;
+    --panel-bg: rgba(22, 19, 45, 0.45);
+    --panel-border: rgba(138, 121, 255, 0.2);
+    --gold: #f9d877;
+    --gold-glow: rgba(249, 216, 119, 0.6);
+    --purple: #8a79ff;
+    --purple-glow: rgba(138, 121, 255, 0.5);
+    --danger: #ff4766;
+    --success: #00ffaa;
+    --text-primary: #f0f0f5;
+    --text-secondary: #a3a0cc;
+    --font-head: 'Cinzel', serif;
+    --font-body: 'Outfit', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    background-image:
+        radial-gradient(circle at 50% 0%, #2a1b5c 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(249, 216, 119, 0.05) 0%, transparent 40%);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#particle-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.main-container {
+    width: 95%;
+    max-width: 1200px;
+    height: 90vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-radius: 20px;
+}
+
+.glass-panel {
+    background: var(--panel-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+header {
+    text-align: center;
+}
+
+h1 {
+    font-family: var(--font-head);
+    color: var(--gold);
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px var(--gold-glow);
+    margin-bottom: 0.2rem;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--purple);
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+h2,
+h3 {
+    font-family: var(--font-head);
+    color: var(--purple);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.game-layout {
+    display: flex;
+    gap: 2rem;
+    flex: 1;
+    min-height: 0;
+    /* Important for flex child scrolling */
+}
+
+/* Board Area */
+.board-column {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    width: 100%;
+    max-width: 700px;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    border: 2px solid var(--purple);
+    box-shadow: 0 0 30px var(--purple-glow);
+}
+
+.board-cell {
+    border: 1px solid rgba(138, 121, 255, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.3);
+    position: relative;
+    user-select: none;
+    transition: all 0.3s ease;
+}
+
+/* Stage Colors */
+.stage-0 {
+    background: rgba(255, 71, 102, 0.05);
+}
+
+/* Mithyatva */
+.stage-1 {
+    background: rgba(249, 216, 119, 0.05);
+}
+
+/* Awareness */
+.stage-2 {
+    background: rgba(0, 255, 170, 0.05);
+}
+
+/* Discipline */
+.stage-3 {
+    background: rgba(138, 121, 255, 0.08);
+}
+
+/* Renunciation */
+.stage-4 {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Liberation */
+
+/* Highlights for snakes/ladders */
+.has-ladder {
+    color: var(--success);
+    text-shadow: 0 0 8px var(--success);
+}
+
+.has-snake {
+    color: var(--danger);
+    text-shadow: 0 0 8px var(--danger);
+}
+
+.player-token {
+    width: calc(100% / 10 - 10px);
+    height: calc(100% / 10 - 10px);
+    background: radial-gradient(circle at 30% 30%, #fff, #8a79ff);
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 5px;
+    box-shadow: 0 0 15px 5px var(--purple-glow), inset -2px -2px 10px rgba(0, 0, 0, 0.5);
+    transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* UI Panel */
+.controls-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.status-panel,
+.dice-panel,
+.info-panel {
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.highlight {
+    color: var(--gold);
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.dice {
+    font-size: 6rem;
+    color: var(--gold);
+    line-height: 1;
+    text-shadow: 0 0 20px var(--gold-glow);
+    margin-bottom: 1rem;
+}
+
+.glow-btn {
+    background: linear-gradient(135deg, #6c5ce7, #8a79ff);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--purple-glow);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.glow-btn:hover {
+    box-shadow: 0 0 25px var(--purple-glow), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.glow-btn:active {
+    transform: translateY(1px);
+}
+
+.glow-btn:disabled {
+    background: #444;
+    color: #888;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.action-feedback {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: var(--success);
+    min-height: 1.5rem;
+    text-align: center;
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    width: 50%;
+    /* starts middle */
+    height: 100%;
+    background: linear-gradient(90deg, var(--success), var(--gold), var(--danger));
+    transition: width 0.5s ease;
+}
+
+.small-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: linear-gradient(180deg, rgba(30, 25, 60, 0.95), rgba(15, 12, 30, 0.95));
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 450px;
+    text-align: center;
+    border: 1px solid var(--purple);
+    box-shadow: 0 0 50px var(--purple-glow);
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal.hidden .modal-content {
+    transform: scale(0.8);
+}
+
+.modal-icon {
+    font-size: 4rem;
+    margin: 1rem 0;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+}
+
+#modal-desc {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+}
+
+/* Animations that JS can toggle */
+@keyframes dice-roll {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: rotate(90deg) scale(1.2);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(0.9);
+    }
+
+    75% {
+        transform: rotate(270deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+.rolling {
+    animation: dice-roll 0.5s ease;
+}
+
+@keyframes flash-success {
+
+    0%,
+    100% {
+        box-shadow: 0 0 30px var(--purple-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 50px var(--success), inset 0 0 20px var(--success);
+        border-color: var(--success);
+    }
+}
+
+.board-ladder-glow {
+    animation: flash-success 1.5s ease;
+}
+
+@keyframes flash-danger {
+
+    0%,
+    100% {
+        box-shadow: 0 0 30px var(--purple-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 50px var(--danger), inset 0 0 20px var(--danger);
+        border-color: var(--danger);
+    }
+}
+
+.board-snake-glow {
+    animation: flash-danger 1.5s ease;
+}
+
+@media (max-width: 900px) {
+    .game-layout {
+        flex-direction: column;
+    }
+
+    .board-column {
+        flex: none;
+    }
+
+    .main-container {
+        height: auto;
+        padding: 1rem;
+    }
+}
