@@ -189,7 +189,7 @@ function drawConnections() {
         svgHTML += drawRealSnake(cx1, cy1, cx2, cy2);
     }
     
-    return `<svg id="connections" viewBox="0 0 100 100" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;">${svgHTML}</svg>`;
+    return `<svg id="connections" viewBox="0 0 100 100" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5; opacity:0.65;">${svgHTML}</svg>`;
 }
 
 function initBoard() {
