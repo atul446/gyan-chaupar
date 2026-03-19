@@ -1,19 +1,21 @@
 const boardEl = document.getElementById('game-board');
-const playerToken = document.getElementById('player');
 const diceEl = document.getElementById('dice');
 const rollBtn = document.getElementById('roll-btn');
 const posDisplay = document.getElementById('pos-display');
 const stageDisplay = document.getElementById('stage-display');
 const actionText = document.getElementById('action-text');
 const karmaFill = document.getElementById('karma-fill');
+const activePlayerName = document.getElementById('active-player-name');
 
-let currentPos = 1;
-let currentKarma = 50; // 0 to 100, 50 is neutral
+let players = [];
+let currentPlayerIndex = 0;
+let numPlayers = 1;
 let isMoving = false;
 
 // Game Config
 const TOTAL_TILES = 100;
 const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+const playerColors = ['#8a79ff', '#f9d877', '#00ffaa', '#ff4766'];
 
 const ladders = {
     3: { to: 22, name: "Curiosity", desc: "Curiosity is the beginning of learning. The search for truth elevates your soul." },
@@ -50,7 +52,6 @@ const stages = [
 ];
 
 function initBoard() {
-    // We append cells visually from row 9 down to row 0
     let cellsHTML = '';
     for (let row = 9; row >= 0; row--) {
         let cols = [];
@@ -63,7 +64,6 @@ function initBoard() {
             let cls = 'board-cell';
             let overlay = '';
             
-            // Determine stage color
             let stageIndex = Math.ceil(num / 20) - 1;
             cls += ` stage-${stageIndex}`;
 
@@ -82,80 +82,102 @@ function initBoard() {
         });
     }
     boardEl.innerHTML = cellsHTML;
-    boardEl.appendChild(playerToken); // re-append token
-    
-    updatePlayerPosition(1, true); // Instant move to 1
 }
 
 function getCoordinates(cell) {
-    // cell: 1 to 100
     const zeroIndexed = cell - 1;
     const row = Math.floor(zeroIndexed / 10);
-    
     let col;
-    if (row % 2 === 0) {
-        col = zeroIndexed % 10; // Left to right
-    } else {
-        col = 9 - (zeroIndexed % 10); // Right to left
-    }
+    if (row % 2 === 0) col = zeroIndexed % 10;
+    else col = 9 - (zeroIndexed % 10);
     
-    const topPercent = (9 - row) * 10;
-    const leftPercent = col * 10;
-    return { top: `${topPercent}%`, left: `${leftPercent}%` };
+    return { top: (9 - row) * 10, left: col * 10 };
 }
 
-function updatePlayerPosition(cell, instant = false) {
+function updatePlayerPosition(pIndex, cell, instant = false) {
     const coords = getCoordinates(cell);
+    const pToken = players[pIndex].tokenEl;
+    
+    // Add small offset to prevent exact overlapping
+    const offsetLeft = pIndex * 4;
+    const offsetTop = pIndex * 4;
+    
     if(instant) {
-        playerToken.style.transition = 'none';
-        playerToken.style.left = coords.left;
-        playerToken.style.top = coords.top;
-        // Force reflow
-        void playerToken.offsetWidth;
-        playerToken.style.transition = 'left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        pToken.style.transition = 'none';
+        pToken.style.left = `calc(${coords.left}% + ${offsetLeft}px)`;
+        pToken.style.top = `calc(${coords.top}% + ${offsetTop}px)`;
+        void pToken.offsetWidth;
+        pToken.style.transition = 'left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
     } else {
-        playerToken.style.left = coords.left;
-        playerToken.style.top = coords.top;
+        pToken.style.left = `calc(${coords.left}% + ${offsetLeft}px)`;
+        pToken.style.top = `calc(${coords.top}% + ${offsetTop}px)`;
     }
     
-    posDisplay.innerText = cell;
-    
-    const stage = stages.find(s => cell <= s.max);
-    stageDisplay.innerText = stage ? stage.name : 'Moksha';
+    if (pIndex === currentPlayerIndex) {
+        posDisplay.innerText = cell;
+        const stage = stages.find(s => cell <= s.max);
+        stageDisplay.innerText = stage ? stage.name : 'Moksha';
+    }
 }
 
-function updateKarma(amount) {
-    currentKarma = Math.max(0, Math.min(100, currentKarma + amount));
-    karmaFill.style.width = `${currentKarma}%`;
+function updateKarma(pIndex, amount) {
+    players[pIndex].karma = Math.max(0, Math.min(100, players[pIndex].karma + amount));
+    if (pIndex === currentPlayerIndex) {
+        karmaFill.style.width = `${players[pIndex].karma}%`;
+    }
+}
+
+function updateUIForCurrentPlayer() {
+    activePlayerName.innerText = `Player ${currentPlayerIndex + 1}'s Turn`;
+    activePlayerName.style.color = playerColors[currentPlayerIndex];
+    activePlayerName.style.textShadow = `0 0 10px ${playerColors[currentPlayerIndex]}88`;
+    
+    posDisplay.innerText = players[currentPlayerIndex].pos;
+    const stage = stages.find(s => players[currentPlayerIndex].pos <= s.max);
+    stageDisplay.innerText = stage ? stage.name : 'Moksha';
+    karmaFill.style.width = `${players[currentPlayerIndex].karma}%`;
+}
+
+function nextTurn() {
+    // If someone reached Moksha (100), we could skip their turn, but here Game Over triggers anyway
+    if (players.some(p => p.pos >= 100)) return; 
+    
+    currentPlayerIndex = (currentPlayerIndex + 1) % numPlayers;
+    updateUIForCurrentPlayer();
+    actionText.innerText = "Awaiting roll...";
+    rollBtn.disabled = false;
 }
 
 function moveSequence(diceValue) {
-    let target = currentPos + diceValue;
+    let p = players[currentPlayerIndex];
+    let target = p.pos + diceValue;
+    
     if (target > 100) {
-        actionText.innerText = `Need exactly ${100 - currentPos} to reach Moksha!`;
-        rollBtn.disabled = false;
+        actionText.innerText = `Need exactly ${100 - p.pos} to reach Moksha!`;
+        setTimeout(nextTurn, 1500);
         return;
     }
 
     actionText.innerText = `Moving to ${target}...`;
-    currentPos = target;
-    updatePlayerPosition(currentPos);
+    p.pos = target;
+    updatePlayerPosition(currentPlayerIndex, target);
 
     setTimeout(() => {
-        if (ladders[currentPos]) {
-            handleEvent(ladders[currentPos], 'ladder');
-        } else if (snakes[currentPos]) {
-            handleEvent(snakes[currentPos], 'snake');
-        } else if (currentPos === 100) {
+        if (ladders[target]) {
+            handleEvent(ladders[target], 'ladder');
+        } else if (snakes[target]) {
+            handleEvent(snakes[target], 'snake');
+        } else if (target === 100) {
             handleMoksha();
         } else {
-            actionText.innerText = `Landed safely on ${currentPos}.`;
-            rollBtn.disabled = false;
+            actionText.innerText = `Landed safely on ${target}.`;
+            setTimeout(nextTurn, 1000);
         }
     }, 600); // Wait for CSS transition
 }
 
 function handleEvent(eventData, type) {
+    let pIndex = currentPlayerIndex;
     showModal(eventData.name, eventData.desc, type === 'ladder' ? '🪜' : '🐍');
     
     if (type === 'ladder') {
@@ -163,30 +185,31 @@ function handleEvent(eventData, type) {
         actionText.style.color = 'var(--success)';
         boardEl.classList.add('board-ladder-glow');
         setTimeout(() => boardEl.classList.remove('board-ladder-glow'), 1500);
-        updateKarma(-15); // Good
+        updateKarma(pIndex, -15);
     } else {
         actionText.innerText = `Vice! Falling...`;
         actionText.style.color = 'var(--danger)';
         boardEl.classList.add('board-snake-glow');
         setTimeout(() => boardEl.classList.remove('board-snake-glow'), 1500);
-        updateKarma(15); // Bad
+        updateKarma(pIndex, 15);
     }
 
-    // Move to destination after modal displays
     setTimeout(() => {
-        currentPos = eventData.to;
-        updatePlayerPosition(currentPos);
+        players[pIndex].pos = eventData.to;
+        updatePlayerPosition(pIndex, eventData.to);
         setTimeout(() => { actionText.style.color = 'var(--success)'; }, 1000);
-    }, 2000); // Delay movement so player reads modal
+    }, 2000); 
 }
 
 function handleMoksha() {
-    showModal("Moksha", "You have broken the cycle of karma and attained absolute liberation. The game is complete.", "✨");
-    actionText.innerText = "Game Completed.";
+    showModal("Moksha", `Player ${currentPlayerIndex + 1} has broken the cycle of karma and attained absolute liberation. The game is complete!`, "✨");
+    actionText.innerText = `Player ${currentPlayerIndex + 1} won!`;
     rollBtn.style.display = 'none';
     boardEl.style.boxShadow = "0 0 100px #fff";
-    playerToken.style.background = "#fff";
-    playerToken.style.boxShadow = "0 0 30px 10px #fff";
+    let token = players[currentPlayerIndex].tokenEl;
+    token.style.background = "#fff";
+    token.style.boxShadow = "0 0 30px 10px #fff";
+    token.style.zIndex = "100";
 }
 
 // Modal logic
@@ -207,20 +230,15 @@ function showModal(title, desc, icon) {
 
 modalClose.addEventListener('click', () => {
     modal.classList.add('hidden');
-    if (currentPos === 100) {
-        // Restart logic
-        currentPos = 1;
-        updateKarma(0);
-        currentKarma = 50;
-        updateKarma(0);
-        updatePlayerPosition(1, true);
-        rollBtn.style.display = 'block';
-        actionText.innerText = "Awaiting roll...";
-        boardEl.style.boxShadow = "0 0 30px var(--purple-glow)";
-        playerToken.style.background = "radial-gradient(circle at 30% 30%, #fff, #8a79ff)";
-        playerToken.style.boxShadow = "0 0 15px 5px var(--purple-glow), inset -2px -2px 10px rgba(0,0,0,0.5)";
+    if (players[currentPlayerIndex].pos === 100) {
+        // Full Restart
+        document.getElementById('start-modal').style.display = 'flex';
+        document.getElementById('main-ui').style.opacity = '0';
+        document.getElementById('main-ui').style.pointerEvents = 'none';
+    } else {
+        // Normal event ended, next turn
+        nextTurn();
     }
-    rollBtn.disabled = false;
 });
 
 // Controls
@@ -228,7 +246,6 @@ rollBtn.addEventListener('click', () => {
     rollBtn.disabled = true;
     diceEl.classList.add('rolling');
     
-    // Simulate dice roll animation
     let count = 0;
     const interval = setInterval(() => {
         diceEl.innerText = diceFaces[Math.floor(Math.random() * 6)];
@@ -246,6 +263,42 @@ rollBtn.addEventListener('click', () => {
     }, 50);
 });
 
-// Startup
+// Start Game Setup
+document.querySelectorAll('.start-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        numPlayers = parseInt(e.target.dataset.players);
+        startGame();
+    });
+});
+
+function startGame() {
+    initBoard();
+    players = [];
+    currentPlayerIndex = 0;
+    
+    for (let i = 0; i < numPlayers; i++) {
+        let token = document.createElement('div');
+        token.className = `player-token player-${i}`;
+        boardEl.appendChild(token);
+        
+        players.push({
+            pos: 1,
+            karma: 50,
+            tokenEl: token
+        });
+        updatePlayerPosition(i, 1, true);
+        updateKarma(i, 0);
+    }
+    
+    updateUIForCurrentPlayer();
+    
+    document.getElementById('start-modal').style.display = 'none';
+    document.getElementById('main-ui').style.opacity = '1';
+    document.getElementById('main-ui').style.pointerEvents = 'auto';
+    rollBtn.style.display = 'block';
+    actionText.innerText = "Awaiting roll...";
+    boardEl.style.boxShadow = "0 0 30px var(--purple-glow)";
+}
+
+// Initial state
 initBoard();
-updateKarma(0); // init bar UI
