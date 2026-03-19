@@ -15,7 +15,14 @@ let isMoving = false;
 // Game Config
 const TOTAL_TILES = 100;
 const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-const playerColors = ['#8a79ff', '#f9d877', '#00ffaa', '#ff4766'];
+
+const availableAvatars = [
+    { id: 'sadhu', name: 'The Ascetic', emoji: '🧘‍♂️', color: '#8a79ff', glow: 'rgba(138, 121, 255, 0.7)' },
+    { id: 'raja', name: 'The King', emoji: '🤴', color: '#f9d877', glow: 'rgba(249, 216, 119, 0.7)' },
+    { id: 'guru', name: 'The Teacher', emoji: '👩‍🏫', color: '#00ffaa', glow: 'rgba(0, 255, 170, 0.7)' },
+    { id: 'balak', name: 'The Child', emoji: '🧒', color: '#ff4766', glow: 'rgba(255, 71, 102, 0.7)' }
+];
+let selectedAvatars = [];
 
 const ladders = {
     3: { to: 22, name: "Curiosity", desc: "Curiosity is the beginning of learning. The search for truth elevates your soul." },
@@ -51,8 +58,51 @@ const stages = [
     { max: 100, name: 'Keval Gyan (Omniscience)' }
 ];
 
+function getCoordinates(cell) {
+    const zeroIndexed = cell - 1;
+    const row = Math.floor(zeroIndexed / 10);
+    let col;
+    if (row % 2 === 0) col = zeroIndexed % 10;
+    else col = 9 - (zeroIndexed % 10);
+    
+    return { top: (9 - row) * 10, left: col * 10 };
+}
+
+function drawConnections() {
+    let svgHTML = '';
+    
+    // Ladders (Green dashed line + up arrow)
+    for (let start in ladders) {
+        let end = ladders[start].to;
+        let c1 = getCoordinates(parseInt(start));
+        let c2 = getCoordinates(end);
+        let cy1 = c1.top + 5, cx1 = c1.left + 5;
+        let cy2 = c2.top + 5, cx2 = c2.left + 5;
+        
+        svgHTML += `<line x1="${cx1}" y1="${cy1}" x2="${cx2}" y2="${cy2}" stroke="rgba(0, 255, 170, 0.4)" stroke-width="0.8" stroke-dasharray="1"/>`;
+        svgHTML += `<circle cx="${cx2}" cy="${cy2}" r="1" fill="var(--success)"/>`;
+    }
+    
+    // Snakes (Red wavy/curved line + down arrow)
+    for (let start in snakes) {
+        let end = snakes[start].to;
+        let c1 = getCoordinates(parseInt(start));
+        let c2 = getCoordinates(end);
+        let cy1 = c1.top + 5, cx1 = c1.left + 5;
+        let cy2 = c2.top + 5, cx2 = c2.left + 5;
+        
+        let midx = (cx1 + cx2)/2 + 10;
+        let midy = (cy1 + cy2)/2 - 10;
+        svgHTML += `<path d="M ${cx1} ${cy1} Q ${midx} ${midy} ${cx2} ${cy2}" fill="none" stroke="rgba(255, 71, 102, 0.4)" stroke-width="0.8"/>`;
+        svgHTML += `<circle cx="${cx2}" cy="${cy2}" r="1" fill="var(--danger)"/>`;
+    }
+    
+    return `<svg id="connections" viewBox="0 0 100 100" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5;">${svgHTML}</svg>`;
+}
+
 function initBoard() {
-    let cellsHTML = '';
+    let cellsHTML = drawConnections();
+    
     for (let row = 9; row >= 0; row--) {
         let cols = [];
         for (let col = 1; col <= 10; col++) {
@@ -69,29 +119,22 @@ function initBoard() {
 
             if (ladders[num]) {
                 cls += ' has-ladder';
-                overlay = '<span style="font-size:0.8em; opacity:0.8">🪜</span>';
+                overlay = `<span style="font-size:0.7em; opacity:0.8; display:block; margin-top:-5px; color:var(--success)">➔${ladders[num].to}</span>`;
             }
             if (snakes[num]) {
                 cls += ' has-snake';
-                overlay = '<span style="font-size:0.8em; opacity:0.8">🐍</span>';
+                overlay = `<span style="font-size:0.7em; opacity:0.8; display:block; margin-top:-5px; color:var(--danger)">➔${snakes[num].to}</span>`;
             }
 
             cellsHTML += `<div class="${cls}" data-cell="${num}">
-                ${num} <div style="position:absolute; bottom:2px; right:2px">${overlay}</div>
+                <div style="text-align:center;">
+                    ${num}
+                    ${overlay}
+                </div>
             </div>`;
         });
     }
     boardEl.innerHTML = cellsHTML;
-}
-
-function getCoordinates(cell) {
-    const zeroIndexed = cell - 1;
-    const row = Math.floor(zeroIndexed / 10);
-    let col;
-    if (row % 2 === 0) col = zeroIndexed % 10;
-    else col = 9 - (zeroIndexed % 10);
-    
-    return { top: (9 - row) * 10, left: col * 10 };
 }
 
 function updatePlayerPosition(pIndex, cell, instant = false) {
@@ -128,9 +171,10 @@ function updateKarma(pIndex, amount) {
 }
 
 function updateUIForCurrentPlayer() {
-    activePlayerName.innerText = `Player ${currentPlayerIndex + 1}'s Turn`;
-    activePlayerName.style.color = playerColors[currentPlayerIndex];
-    activePlayerName.style.textShadow = `0 0 10px ${playerColors[currentPlayerIndex]}88`;
+    let av = players[currentPlayerIndex].avatar;
+    activePlayerName.innerText = `${av.name}'s Turn`;
+    activePlayerName.style.color = av.color;
+    activePlayerName.style.textShadow = `0 0 10px ${av.glow}`;
     
     posDisplay.innerText = players[currentPlayerIndex].pos;
     const stage = stages.find(s => players[currentPlayerIndex].pos <= s.max);
@@ -139,7 +183,6 @@ function updateUIForCurrentPlayer() {
 }
 
 function nextTurn() {
-    // If someone reached Moksha (100), we could skip their turn, but here Game Over triggers anyway
     if (players.some(p => p.pos >= 100)) return; 
     
     currentPlayerIndex = (currentPlayerIndex + 1) % numPlayers;
@@ -173,7 +216,7 @@ function moveSequence(diceValue) {
             actionText.innerText = `Landed safely on ${target}.`;
             setTimeout(nextTurn, 1000);
         }
-    }, 600); // Wait for CSS transition
+    }, 600);
 }
 
 function handleEvent(eventData, type) {
@@ -202,8 +245,9 @@ function handleEvent(eventData, type) {
 }
 
 function handleMoksha() {
-    showModal("Moksha", `Player ${currentPlayerIndex + 1} has broken the cycle of karma and attained absolute liberation. The game is complete!`, "✨");
-    actionText.innerText = `Player ${currentPlayerIndex + 1} won!`;
+    let av = players[currentPlayerIndex].avatar;
+    showModal("Moksha", `${av.name} has broken the cycle of karma and attained absolute liberation. The game is complete!`, "✨");
+    actionText.innerText = `${av.name} won!`;
     rollBtn.style.display = 'none';
     boardEl.style.boxShadow = "0 0 100px #fff";
     let token = players[currentPlayerIndex].tokenEl;
@@ -231,17 +275,14 @@ function showModal(title, desc, icon) {
 modalClose.addEventListener('click', () => {
     modal.classList.add('hidden');
     if (players[currentPlayerIndex].pos === 100) {
-        // Full Restart
         document.getElementById('start-modal').style.display = 'flex';
         document.getElementById('main-ui').style.opacity = '0';
         document.getElementById('main-ui').style.pointerEvents = 'none';
     } else {
-        // Normal event ended, next turn
         nextTurn();
     }
 });
 
-// Controls
 rollBtn.addEventListener('click', () => {
     rollBtn.disabled = true;
     diceEl.classList.add('rolling');
@@ -263,32 +304,73 @@ rollBtn.addEventListener('click', () => {
     }, 50);
 });
 
-// Start Game Setup
-document.querySelectorAll('.start-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        numPlayers = parseInt(e.target.dataset.players);
-        startGame();
-    });
-});
+// STARTUP - Avatar selection UI
+const avatarContainer = document.getElementById('avatar-selection');
+const beginBtn = document.getElementById('begin-journey-btn');
 
-function startGame() {
+function renderAvatarSelection() {
+    avatarContainer.innerHTML = '';
+    availableAvatars.forEach(av => {
+        let isSelected = selectedAvatars.find(a => a.id === av.id);
+        avatarContainer.innerHTML += `
+            <div class="avatar-card ${isSelected ? 'selected' : ''}" data-id="${av.id}">
+                <div class="avatar-emoji">${av.emoji}</div>
+                <div class="avatar-name" style="color:${av.color}">${av.name}</div>
+            </div>`;
+    });
+    
+    document.querySelectorAll('.avatar-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            const id = e.currentTarget.dataset.id;
+            const existingIndex = selectedAvatars.findIndex(a => a.id === id);
+            
+            if (existingIndex >= 0) {
+                selectedAvatars.splice(existingIndex, 1);
+            } else if (selectedAvatars.length < 4) {
+                selectedAvatars.push(availableAvatars.find(a => a.id === id));
+            }
+            
+            renderAvatarSelection();
+            if (selectedAvatars.length > 0) {
+                beginBtn.disabled = false;
+                beginBtn.style.opacity = '1';
+            } else {
+                beginBtn.disabled = true;
+                beginBtn.style.opacity = '0.5';
+            }
+        });
+    });
+}
+
+beginBtn.addEventListener('click', () => {
+    numPlayers = selectedAvatars.length;
     initBoard();
     players = [];
     currentPlayerIndex = 0;
     
-    for (let i = 0; i < numPlayers; i++) {
+    selectedAvatars.forEach((av, i) => {
         let token = document.createElement('div');
-        token.className = `player-token player-${i}`;
+        token.className = `player-token`;
+        token.style.background = `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), ${av.color}88)`;
+        token.style.border = `2px solid ${av.color}`;
+        token.style.boxShadow = `0 0 15px 5px ${av.glow}, inset -2px -2px 10px rgba(0,0,0,0.5)`;
+        token.style.display = 'flex';
+        token.style.justifyContent = 'center';
+        token.style.alignItems = 'center';
+        token.style.fontSize = '1.5rem';
+        token.innerText = av.emoji;
+        
         boardEl.appendChild(token);
         
         players.push({
             pos: 1,
             karma: 50,
-            tokenEl: token
+            tokenEl: token,
+            avatar: av
         });
         updatePlayerPosition(i, 1, true);
         updateKarma(i, 0);
-    }
+    });
     
     updateUIForCurrentPlayer();
     
@@ -298,7 +380,6 @@ function startGame() {
     rollBtn.style.display = 'block';
     actionText.innerText = "Awaiting roll...";
     boardEl.style.boxShadow = "0 0 30px var(--purple-glow)";
-}
+});
 
-// Initial state
-initBoard();
+renderAvatarSelection();

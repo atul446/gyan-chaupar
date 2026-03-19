@@ -429,3 +429,38 @@ h3 {
         padding: 1rem;
     }
 }
+
+.avatar-card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--purple);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.avatar-card:hover {
+    background: rgba(138, 121, 255, 0.15);
+    transform: translateY(-5px);
+}
+
+.avatar-card.selected {
+    background: rgba(138, 121, 255, 0.3);
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(249, 216, 119, 0.5);
+    transform: translateY(-5px);
+}
+
+.avatar-emoji {
+    font-size: 3rem;
+}
+
+.avatar-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
