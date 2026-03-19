@@ -221,27 +221,53 @@ function moveSequence(diceValue) {
 
 function handleEvent(eventData, type) {
     let pIndex = currentPlayerIndex;
-    showModal(eventData.name, eventData.desc, type === 'ladder' ? '🪜' : '🐍');
+    let token = players[pIndex].tokenEl;
+    
+    // Floating Text
+    let floatText = document.createElement('div');
+    floatText.className = 'floating-text';
+    floatText.style.left = `calc(${token.style.left} - 20px)`;
+    floatText.style.top = token.style.top;
+    boardEl.appendChild(floatText);
     
     if (type === 'ladder') {
         actionText.innerText = `Virtue! Ascending...`;
         actionText.style.color = 'var(--success)';
         boardEl.classList.add('board-ladder-glow');
-        setTimeout(() => boardEl.classList.remove('board-ladder-glow'), 1500);
+        token.classList.add('ladder-animation');
+        
+        floatText.innerText = '✨ Virtue!';
+        floatText.style.color = 'var(--success)';
+        floatText.style.textShadow = '0 0 10px var(--success)';
+        
         updateKarma(pIndex, -15);
     } else {
         actionText.innerText = `Vice! Falling...`;
         actionText.style.color = 'var(--danger)';
         boardEl.classList.add('board-snake-glow');
-        setTimeout(() => boardEl.classList.remove('board-snake-glow'), 1500);
+        token.classList.add('snake-animation');
+        
+        floatText.innerText = '🐍 Vice!';
+        floatText.style.color = 'var(--danger)';
+        floatText.style.textShadow = '0 0 10px var(--danger)';
+        
         updateKarma(pIndex, 15);
     }
 
+    setTimeout(() => floatText.remove(), 1500);
+
+    // Wait for the animation to finish before moving the piece and showing the modal
     setTimeout(() => {
+        boardEl.classList.remove('board-ladder-glow', 'board-snake-glow');
+        token.classList.remove('ladder-animation', 'snake-animation');
+        
+        showModal(eventData.name, eventData.desc, type === 'ladder' ? '🪜' : '🐍');
+        
         players[pIndex].pos = eventData.to;
         updatePlayerPosition(pIndex, eventData.to);
         setTimeout(() => { actionText.style.color = 'var(--success)'; }, 1000);
-    }, 2000); 
+        
+    }, 1500); 
 }
 
 function handleMoksha() {
