@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Gyan Chaupar - The Heavenly Realm</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <title>Gyan Chaupar - The Sacred Jain Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700;900&family=Newsreader:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
     <script id="tailwind-config">
@@ -18,8 +18,6 @@
                   "secondary": "#735c00",
                   "tertiary": "#003838",
                   "on-surface": "#221b03",
-                  "surface-container-low": "#fff3d5",
-                  "surface-container-highest": "#f0e2ba"
                 },
                 fontFamily: {
                   "headline": ["Noto Serif"],
@@ -30,100 +28,147 @@
           }
     </script>
     <style>
-        .parchment-grain {
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            opacity: 0.08;
-        }
-        .deckled-edge {
-            clip-path: polygon(0% 2%, 2% 0%, 5% 3%, 10% 1%, 15% 4%, 20% 0%, 25% 2%, 30% 0%, 35% 3%, 40% 1%, 45% 4%, 50% 0%, 55% 2%, 60% 0%, 65% 3%, 70% 1%, 75% 4%, 80% 0%, 85% 2%, 90% 0%, 95% 3%, 100% 1%, 98% 5%, 100% 10%, 97% 15%, 100% 20%, 98% 25%, 100% 30%, 97% 35%, 100% 40%, 98% 45%, 100% 50%, 97% 55%, 100% 60%, 98% 65%, 100% 70%, 97% 75%, 100% 80%, 98% 85%, 100% 90%, 97% 95%, 100% 100%, 95% 97%, 90% 100%, 85% 98%, 80% 100%, 75% 97%, 70% 100%, 65% 98%, 60% 100%, 55% 97%, 50% 100%, 45% 98%, 40% 100%, 35% 97%, 30% 100%, 25% 98%, 20% 100%, 15% 97%, 10% 100%, 5% 98%, 0% 100%, 2% 95%, 0% 90%, 3% 85%, 1% 80%, 4% 75%, 0% 70%, 2% 65%, 0% 60%, 3% 55%, 1% 50%, 4% 45%, 0% 40%, 2% 35%, 0% 30%, 3% 25%, 1% 20%, 4% 15%, 0% 10%, 2% 5%);
-        }
         .celestial-void {
             background: radial-gradient(circle at center, #1a150c 0%, #0a0804 100%);
             min-height: 100vh;
         }
-        .board-grid {
+        
+        /* The Jain Board Container using the static 4K asset */
+        .jain-board-container {
+            position: relative;
+            background-image: url('static/img/board_jain.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 1000 / 1778; /* Matches the 4K portrait orientation */
+            margin: 0 auto;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+        }
+
+        /* The Grid overlay matches the drawn lines in the image */
+        /* Approximate mapping for the 9x9 grid + top 3 squares */
+        .board-overlay {
+            position: absolute;
+            top: 14.5%; /* Adjust based on image's grid position */
+            left: 14.5%;
+            right: 14.5%;
+            bottom: 12.5%;
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(10, 1fr);
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(10, 1fr); /* 9 rows for grid + 1 for Siddhashila */
+            z-index: 10;
         }
-        /* Custom Snake Styles from Stitch */
-        .snake-path {
-            filter: drop-shadow(2px 8px 12px rgba(0,0,0,0.6));
-            stroke-linecap: round;
+
+        .board-cell {
+            position: relative;
+            cursor: pointer;
+            border: 0.5px solid rgba(0,0,0,0.03); /* Faint guide lines */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        /* Player token style */
+
+        /* Number labels (removed in design, added by app) */
+        .cell-num {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: var(--primary);
+            opacity: 0.25;
+            font-family: 'Noto Serif';
+        }
+
+        /* Seeker tokens */
         .player-token {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             border: 2px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 40;
         }
+
+        /* Stone Seal UI */
+        .stone-btn {
+            background: #1c1b1a;
+            color: white;
+            padding: 1rem 3rem;
+            font-family: var(--font-head);
+            font-weight: 900;
+            box-shadow: 4px 4px 0px #444, inset 0 4px 8px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            transform: skewX(-5deg);
+        }
+        .stone-btn:active {
+            transform: skewX(-5deg) translate(2px, 2px);
+            box-shadow: 0px 0px 0px #444;
+        }
     </style>
 </head>
-<body class="bg-background font-body text-on-surface celestial-void p-4 md:p-8 selection:bg-primary selection:text-on-primary">
+<body class="bg-background font-body text-on-surface celestial-void p-4 md:p-8">
 
     <div id="main-ui" class="max-w-5xl mx-auto opacity-0 transition-opacity duration-1000">
-        <!-- The Canvas: Aged Parchment -->
-        <div class="relative bg-surface p-1 shadow-2xl deckled-edge">
-            <div class="absolute inset-0 parchment-grain pointer-events-none"></div>
-            <div class="relative z-10 p-4 md:p-8 border-[12px] border-double border-primary/20 bg-surface/50">
-                
-                <!-- Heavenly Realm Header -->
-                <section class="relative mb-8 text-center">
-                    <div class="flex items-end justify-center gap-6 mb-4">
-                        <div class="hidden md:flex flex-col items-center opacity-40"><span class="material-symbols-outlined text-4xl">temple_hindu</span><small>Ganesha</small></div>
-                        <div class="relative px-8 py-4 border-x-4 border-primary/40">
-                            <img alt="Ascetic" class="w-20 h-20 mx-auto mb-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1rPegin-8_GtUuJIN-GAcTYY3oNlFcWgK7VwbQvFE_QKcYrNMFw_0ZPgN0MDrJ3DcVv4EDBQ0N9qMVr03FmuRiKNptFblv4SklZRLgAFm-TSwTcb-hmjDYgngrk1ZKlM9_hCeO692xQGJU_xT1DCDm6u-v5j6n1_meWXDI4vk1ndkJ4kwYRBF4f4vZuoXdA-3UDjOdwpcr2XAuTFXlNSW9dV4Avc00twE1HlnRAhPc7sgXi5Qogx7RLMf_2pmF5CynIXGMz5Qg8VF"/>
-                            <h1 class="font-headline text-5xl font-black text-primary tracking-tighter uppercase">Gyan Chaupar</h1>
-                        </div>
-                        <div class="hidden md:flex flex-col items-center opacity-40"><span class="material-symbols-outlined text-4xl">brightness_high</span><small>Lakshmi</small></div>
-                    </div>
-                    <p class="font-body italic text-secondary font-bold tracking-[0.3em]">Moksha - The Ultimate Goal</p>
-                </section>
+        <header class="text-center mb-8">
+            <h1 class="font-headline text-5xl font-black text-primary tracking-tighter uppercase mb-2">Gyan Chaupar</h1>
+            <p class="font-body italic text-secondary font-bold tracking-[0.2em]">The Path of Siddhashila</p>
+        </header>
 
-                <!-- Interactive Board Container -->
-                <div class="relative">
-                    <div id="game-board" class="board-grid border-4 border-primary shadow-inner bg-on-surface-variant/5 relative aspect-square w-full max-w-[700px] mx-auto overflow-hidden">
-                        <!-- SVGs for Snakes and Ladders -->
-                        <svg id="connections" class="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100"></svg>
-                        <!-- Grid cells will be generated here -->
+        <div class="flex flex-col lg:flex-row gap-12 items-center lg:items-start justify-center">
+            
+            <!-- The Traditional Jain Board -->
+            <div class="jain-board-container" id="board-area">
+                <div id="game-board" class="board-overlay">
+                    <!-- 9x9 + 3 cells generated by JS -->
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="lg:w-80 flex flex-col gap-8 text-center lg:text-left">
+                <div class="bg-surface/10 p-6 border-l-4 border-primary/40 backdrop-blur-sm">
+                    <h3 class="text-white uppercase tracking-widest text-sm font-bold opacity-60 mb-2">Current Seeker</h3>
+                    <div class="flex items-center gap-4 justify-center lg:justify-start">
+                        <div id="player-turn-indicator" class="w-6 h-6 rounded-full border-2 border-white shadow-lg"></div>
+                        <span id="current-player-name" class="text-2xl font-headline font-black text-white">Seeker 1</span>
                     </div>
+                    <div id="action-text" class="text-primary font-body italic mt-4 text-lg">Your destiny awaits...</div>
                 </div>
 
-                <!-- Controls -->
-                <footer class="mt-8 flex flex-col items-center gap-6">
-                    <div class="flex items-center gap-4 text-stone-600 font-bold uppercase tracking-widest text-sm">
-                        <span id="player-turn-indicator" class="w-4 h-4 rounded-full bg-primary"></span>
-                        <span id="current-player-name">Seeker 1</span>
+                <div class="relative group">
+                    <button id="roll-btn" class="stone-btn w-full">Roll Cowries</button>
+                    <div class="bg-surface/5 p-4 mt-4 border-t border-white/5">
+                        <p class="text-[11px] text-white/40 italic">A roll of 7 leads to enlightenment; 1 to rebirth.</p>
                     </div>
-                    
-                    <div class="relative group">
-                        <button id="roll-btn" class="relative z-10 px-12 py-5 bg-stone-500 text-stone-900 font-headline font-black text-xl tracking-[0.2em] shadow-[inset_0_4px_8px_rgba(0,0,0,0.4),0_8px_16px_rgba(0,0,0,0.3)] border-b-8 border-stone-700 active:translate-y-1 active:border-b-4 transition-all uppercase">
-                            Roll Cowries
-                        </button>
-                        <div class="absolute inset-0 bg-stone-900/20 blur-md translate-y-2 pointer-events-none"></div>
-                    </div>
-
-                    <div id="action-text" class="text-secondary font-body italic text-lg h-8 text-center">Seek your destiny...</div>
-                </footer>
+                </div>
+                
+                <div class="hidden lg:block space-y-4">
+                    <div class="text-[10px] text-white/30 uppercase tracking-[0.5em] border-b border-white/10 pb-2">Sacred Index</div>
+                    <p class="text-white/40 text-[11px] italic leading-relaxed">The board represents the 8.4 million cycles of rebirth. Follow the ladders of Virtue to transcend the snakes of Passions.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div id="setup-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="bg-surface p-8 max-w-lg w-full border-[10px] border-double border-primary/30 text-center deckled-edge">
-            <h2 class="font-headline text-4xl font-black text-primary mb-6 uppercase">Assemble Seekers</h2>
-            <p class="font-body text-stone-600 mb-8 italic">Choose the number of souls embarking on this journey of self-reflection.</p>
-            <div class="flex justify-center gap-4 mb-8">
-                <button class="player-count-btn w-16 h-16 border-4 border-primary/20 hover:border-primary font-headline text-2xl transition-all" data-count="2">2</button>
-                <button class="player-count-btn w-16 h-16 border-4 border-primary/20 hover:border-primary font-headline text-2xl transition-all" data-count="3">3</button>
-                <button class="player-count-btn w-16 h-16 border-4 border-primary/20 hover:border-primary font-headline text-2xl transition-all" data-count="4">4</button>
+    <!-- Seeker Assembly Modal -->
+    <div id="setup-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-4">
+        <div class="bg-surface p-12 max-w-lg w-full text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/handmade-paper.png')] opacity-20"></div>
+            <div class="relative z-10">
+                <h2 class="font-headline text-5xl font-black text-primary mb-6 uppercase">Assemble Seekers</h2>
+                <p class="font-body text-stone-600 mb-10 italic">How many souls shall embark on this journey toward the Siddhashila?</p>
+                <div class="flex justify-center gap-6 mb-12">
+                    <button class="player-count-btn w-20 h-20 border-4 border-primary/20 hover:border-primary font-headline text-3xl transition-all" data-count="2">2</button>
+                    <button class="player-count-btn w-20 h-20 border-4 border-primary/20 hover:border-primary font-headline text-3xl transition-all" data-count="3">3</button>
+                    <button class="player-count-btn w-20 h-20 border-4 border-primary/20 hover:border-primary font-headline text-3xl transition-all" data-count="4">4</button>
+                </div>
+                <button id="start-game" class="stone-btn w-full uppercase tracking-[0.3em] font-bold hidden">Begin the Ritual</button>
             </div>
-            <button id="start-game" class="w-full bg-primary text-white py-4 font-headline uppercase tracking-widest font-bold hidden">Begin the Ritual</button>
         </div>
     </div>
 
