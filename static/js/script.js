@@ -121,32 +121,20 @@ function drawRealLadder(x1, y1, x2, y2) {
     let dx = x2 - x1;
     let dy = y2 - y1;
     let L = Math.sqrt(dx*dx + dy*dy);
-    let ux = dx/L, uy = dy/L;
-    let nx = -uy, ny = ux;
-    let W = 2.5; 
-    
-    let r1x1 = x1 + nx*W/2, r1y1 = y1 + ny*W/2;
-    let r1x2 = x2 + nx*W/2, r1y2 = y2 + ny*W/2;
-    let r2x1 = x1 - nx*W/2, r2y1 = y1 - ny*W/2;
-    let r2x2 = x2 - nx*W/2, r2y2 = y2 - ny*W/2;
-    
+    let nx = -dy/L, ny = dx/L;
+    let curvature = L * 0.15; // Golden arches
+
+    let cx = (x1 + x2) / 2 + nx * curvature;
+    let cy = (y1 + y2) / 2 + ny * curvature;
+
+    const pathD = `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
+
     let html = `
-    <g filter="drop-shadow(0px 3px 3px rgba(0,0,0,0.8)) drop-shadow(0px 0px 1px rgba(249, 216, 119, 0.8))">
-        <line x1="${r1x1}" y1="${r1y1}" x2="${r1x2}" y2="${r1y2}" stroke="url(#ladder-grad)" stroke-width="0.8" stroke-linecap="round"/>
-        <line x1="${r2x1}" y1="${r2y1}" x2="${r2x2}" y2="${r2y2}" stroke="url(#ladder-grad)" stroke-width="0.8" stroke-linecap="round"/>
-    `;
-    
-    let rungSpacing = 2.5;
-    let numRungs = Math.floor(L / rungSpacing);
-    for (let i = 1; i < numRungs; i++) {
-        let rx = x1 + ux * i * rungSpacing;
-        let ry = y1 + uy * i * rungSpacing;
-        let p1x = rx + nx*W/2, p1y = ry + ny*W/2;
-        let p2x = rx - nx*W/2, p2y = ry - ny*W/2;
-        html += `<line x1="${p1x}" y1="${p1y}" x2="${p2x}" y2="${p2y}" stroke="#d6a96e" stroke-width="0.6" stroke-linecap="round"/>`;
-    }
-    
-    html += `</g>`;
+    <g filter="drop-shadow(0px 0px 8px #735c00)">
+        <!-- Radiant rails -->
+        <path d="${pathD}" fill="none" stroke="#735c00" stroke-width="1.8" stroke-linecap="round" />
+        <path d="${pathD}" fill="none" stroke="#ffe088" stroke-width="0.8" opacity="0.6" stroke-linecap="round" />
+    </g>`;
     return html;
 }
 
@@ -166,15 +154,14 @@ function drawRealSnake(x1, y1, x2, y2) {
     const pathD = `M ${x1} ${y1} C ${cx1} ${cy1} ${cx2} ${cy2} ${x2} ${y2}`;
 
     let html = `
-    <g filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.4))">
-        <!-- Main tapered body -->
-        <path d="${pathD}" fill="none" stroke="#2c2b29" stroke-width="4.5" stroke-linecap="round" />
-        <!-- Hand-inked charcoal texture overlay -->
-        <path d="${pathD}" fill="none" stroke="#1c1b1a" stroke-width="4.2" stroke-dasharray="1 0.8" opacity="0.4" stroke-linecap="round" />
-        <!-- Sienna scale pattern -->
-        <path d="${pathD}" fill="none" stroke="#984126" stroke-width="2.5" stroke-dasharray="2,3" stroke-linecap="round" />
-        <!-- Fine spine line -->
-        <path d="${pathD}" fill="none" stroke="#1c1b1a" stroke-width="0.3" opacity="0.6" stroke-linecap="round" />
+    <g filter="drop-shadow(2px 8px 12px rgba(0,0,0,0.6))">
+        <!-- Dense Charcoal Body -->
+        <path d="${pathD}" fill="none" stroke="#111111" stroke-width="5.5" stroke-linecap="round" />
+        <!-- Glowing Turquoise Pattern (Matching unnamed.jpg) -->
+        <path d="${pathD}" fill="none" stroke="#00dada" stroke-width="2.2" stroke-dasharray="1.5 5" opacity="0.8" stroke-linecap="round" />
+        <!-- Hand-inked crosshatching -->
+        <path d="${pathD}" fill="none" stroke="#221b03" stroke-width="5.0" stroke-dasharray="0.5 1" opacity="0.3" />
+    </g>
     `;
 
     // Calculate angles accurately for extremities
@@ -183,25 +170,13 @@ function drawRealSnake(x1, y1, x2, y2) {
 
     html += `
     <g transform="translate(${x1}, ${y1}) rotate(${ang})">
-        <!-- Forked tongue (subdued red) -->
-        <path d="M 3 0 L 5 0 M 5 0 L 6 -0.8 M 5 0 L 6 0.8" stroke="#ba1a1a" stroke-width="0.4" fill="none" stroke-linecap="round" opacity="0.8"/>
-        <!-- Realistic pointed head -->
-        <path d="M 0 -1.5 Q 2 -2 4 0 Q 2 2 0 1.5 Z" fill="#2c2b29" stroke="#1c1b1a" stroke-width="0.5"/>
-        <!-- Eye slits -->
-        <line x1="1.5" y1="-0.8" x2="2.5" y2="-1" stroke="#e9c349" stroke-width="0.3" opacity="0.9"/>
-        <line x1="1.5" y1="0.8" x2="2.5" y2="1" stroke="#e9c349" stroke-width="0.3" opacity="0.9"/>
+        <!-- Detailed Head (Deep Charcoal) -->
+        <path d="M 0 -2 Q 3 -2.5 5 0 Q 3 2.5 0 2 Z" fill="#111111" stroke="#000" stroke-width="0.5"/>
+        <!-- Luminescent Eyes -->
+        <circle cx="2.5" cy="-1.2" r="0.6" fill="#0ff" filter="blur(1px)"/>
+        <circle cx="2.5" cy="1.2" r="0.6" fill="#0ff" filter="blur(1px)"/>
     </g>
     `;
-
-    // Tapered Tail
-    let tDirX = x2 - cx2, tDirY = y2 - cy2;
-    let tAng = Math.atan2(tDirY, tDirX) * 180 / Math.PI;
-
-    html += `
-    <g transform="translate(${x2}, ${y2}) rotate(${tAng})">
-        <path d="M 0 -1.5 Q -3 0 0 1.5 L -5 0 Z" fill="#2c2b29" stroke="#1c1b1a" stroke-width="0.2"/>
-    </g>
-    </g>`;
 
     return html;
 }
@@ -251,20 +226,18 @@ function initBoard() {
         }
         if (row % 2 !== 0) cols.reverse();
 
-        cols.forEach(num => {
-            let cls = 'board-cell';
-            
-            let stageIndex = Math.ceil(num / 20) - 1;
-            cls += ` stage-${stageIndex}`;
-
-            cls += ' parchment-texture';
+        cols.forEach((num, index) => {
+            const isCrimson = (row + index) % 2 === 0;
+            const cls = `board-cell ${isCrimson ? 'cell-crimson' : 'cell-cream'} parchment-texture`;
 
             cellsHTML += `<div class="${cls}" data-cell="${num}">
-                <div style="font-size: 0.75rem; font-weight: 800; position: absolute; top: 2px; left: 4px; opacity: 0.6;">
+                <div style="font-size: 0.75rem; font-weight: 900; position: absolute; top: 2px; left: 4px; opacity: 0.4;">
                     ${num}
                 </div>
-                ${ladders[num] ? '<span class="material-symbols-outlined" style="opacity: 0.5;">keyboard_double_arrow_up</span>' : ''}
-                ${snakes[num] ? '<span class="material-symbols-outlined" style="opacity: 0.5;">warning</span>' : ''}
+                <!-- Sanskrit Annotated Label (Stylized) -->
+                <div style="font-size: 0.6rem; margin-top: 15px; opacity: 0.7; font-style: italic;">
+                    ${ladders[num] ? 'सत्य' : (snakes[num] ? 'मोह' : 'धर्म')}
+                </div>
             </div>`;
         });
     }

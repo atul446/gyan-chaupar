@@ -1,43 +1,45 @@
 :root {
-    --primary: #984126; /* Burnt Sienna / Terracotta */
-    --primary-container: #b7593b;
+    --primary: #6b0001; /* Sacred Crimson / Cinnabar */
+    --primary-container: #8c1c13;
     --on-primary: #ffffff;
-    --secondary: #3d6752; /* Patina Green / Oxidized Copper */
-    --tertiary: #755700; /* Faded Ochre */
+    --secondary: #735c00; /* Radiant Gold leaf */
+    --tertiary: #008080; /* Glowing Turquoise (snake spine) */
     
-    --surface: #fdf9f5; /* Aged Parchment Base */
-    --on-surface: #1c1b1a; /* Charcoal Ink */
-    --text-secondary: #50453b;
+    --surface: #fff8f0; /* Aged Cream Vellum */
+    --on-surface: #221b03; /* Deep Charcoal Ink */
+    --text-secondary: #58413e;
     
     --surface-container-lowest: #ffffff;
-    --surface-container-low: #f7f3ef;
-    --surface-variant: #e6e2de;
-    --ghost-border: rgba(130, 117, 106, 0.2);
+    --surface-container-low: #fff3d5;
+    --surface-variant: #f0e2ba;
+    --ghost-border: rgba(140, 113, 109, 0.2);
     
-    /* Parchment specific for the grid */
-    --parchment: #fdf6e3;
-    --parchment-ink: #423300;
-    
-    /* Legacy mappings updated for Museum effect */
-    --gold: #984126;
-    --gold-glow: rgba(152, 65, 38, 0.1);
-    --purple: #3d6752; 
-    --purple-glow: rgba(61, 103, 82, 0.1); 
-    --danger: #ba1a1a;
-    --success: #3d6752; 
-    --text-primary: #1c1b1a;
+    /* Legacy mappings for script.js */
+    --gold: #735c00;
+    --gold-glow: rgba(115, 92, 0, 0.2);
+    --purple: #008080; 
+    --purple-glow: rgba(0, 128, 128, 0.2); 
+    --danger: #6b0001;
+    --success: #735c00; 
+    --text-primary: #221b03;
     
     --font-head: 'Noto Serif', serif;
-    --font-body: 'Noto Serif', serif; /* Exclusive use of Noto Serif for antiquity */
+    --font-body: 'Noto Serif', serif;
     
-    --ambient-shadow: 0 8px 32px rgba(28, 27, 26, 0.08);
+    --ambient-shadow: 0 12px 40px rgba(34, 27, 3, 0.1);
+}
+
+.deckled-edge {
+    clip-path: polygon(
+        0% 2%, 2% 0%, 5% 1%, 10% 0%, 15% 2%, 20% 0%, 25% 1%, 30% 0%, 35% 2%, 40% 0%, 45% 1%, 50% 0%, 55% 2%, 60% 0%, 65% 1%, 70% 0%, 75% 2%, 80% 0%, 85% 1%, 90% 0%, 95% 2%, 100% 0%,
+        100% 100%, 0% 100%
+    ); /* Simple tear effect for the bottom of headers */
 }
 
 .parchment-texture {
-    background-color: var(--parchment) !important;
-    background-image: 
-        url('https://www.transparenttextures.com/patterns/parchment.png');
-    color: var(--parchment-ink) !important;
+    background-color: var(--surface) !important;
+    background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
+    color: var(--on-surface) !important;
 }
 
 * {
@@ -148,24 +150,31 @@ h3 {
     position: relative;
     overflow: hidden;
     padding: 0;
-    border: 3px double var(--primary);
+    border: 4px solid var(--primary);
     gap: 0;
-    background-color: var(--on-surface);
+    background-color: var(--primary); /* Checkerboard gap fill */
     box-shadow: var(--ambient-shadow);
 }
 
 .board-cell {
-    border: 0.5px solid rgba(28, 27, 26, 0.1);
-    background-color: var(--surface);
+    border: 0.1px solid rgba(130, 117, 109, 0.1);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--on-surface);
     position: relative;
     user-select: none;
     transition: background-color 0.3s ease;
+}
+
+.cell-crimson {
+    background-color: var(--primary);
+    color: var(--on-primary);
+}
+
+.cell-cream {
+    background-color: var(--surface);
+    color: var(--primary);
 }
 
 /* Stage Colors */
@@ -247,40 +256,32 @@ h3 {
 }
 
 .glow-btn {
-    background: var(--primary);
-    color: var(--on-primary);
+    background: #1c1b1a; /* Dark Stone Seal */
+    color: white;
     border: none;
-    padding: 1rem 2.5rem;
-    font-size: 1.2rem;
+    padding: 1.2rem 3rem;
+    font-size: 1.3rem;
     font-family: var(--font-head);
-    font-weight: 700;
-    border-radius: 0px; /* Sharp Stone Seal */
+    font-weight: 900;
+    border-radius: 0px;
     cursor: pointer;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), inset 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 4px 4px 0px #444, inset 0 4px 8px rgba(0, 0, 0, 0.4);
     transition: all 0.2s ease;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
     position: relative;
-    overflow: hidden;
-}
-
-.glow-btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.1;
-    background-image: url('https://www.transparenttextures.com/patterns/granite.png');
-    pointer-events: none;
+    transform: skewX(-5deg);
 }
 
 .glow-btn:hover {
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3), inset 0 4px 10px rgba(0, 0, 0, 0.4);
-    transform: translateY(-2px);
-    background-color: var(--primary-container);
+    background-color: #2c2b29;
+    transform: skewX(-5deg) translateY(-2px);
+    box-shadow: 6px 6px 0px #555;
 }
 
 .glow-btn:active {
-    transform: translateY(1px) scale(0.98);
+    transform: skewX(-5deg) translate(2px, 2px);
+    box-shadow: 0px 0px 0px #444;
 }
 
 .glow-btn:disabled {
