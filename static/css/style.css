@@ -1,17 +1,31 @@
 :root {
-    --bg-color: #0b0914;
-    --panel-bg: rgba(22, 19, 45, 0.45);
-    --panel-border: rgba(138, 121, 255, 0.2);
+    --primary: #735c00;
+    --primary-container: #f9d877;
+    --on-primary: #ffffff;
+    --secondary: #5945ca;
+    
+    --surface: #fff8f2;
+    --on-surface: #221b0b;
+    --text-secondary: #4c4637;
+    
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #fff2dd;
+    --surface-variant: #f0e1c7;
+    --ghost-border: rgba(207, 198, 178, 0.3);
+    
+    /* Legacy mappings to ease script.js transition */
     --gold: #f9d877;
-    --gold-glow: rgba(249, 216, 119, 0.6);
-    --purple: #8a79ff;
-    --purple-glow: rgba(138, 121, 255, 0.5);
-    --danger: #ff4766;
-    --success: #00ffaa;
-    --text-primary: #f0f0f5;
-    --text-secondary: #a3a0cc;
-    --font-head: 'Cinzel', serif;
-    --font-body: 'Outfit', sans-serif;
+    --gold-glow: rgba(249, 216, 119, 0.4);
+    --purple: #735c00; 
+    --purple-glow: rgba(115, 92, 0, 0.2); 
+    --danger: #ba1a1a;
+    --success: #5945ca; 
+    --text-primary: #221b0b;
+    
+    --font-head: 'Noto Serif', serif;
+    --font-body: 'Be Vietnam Pro', sans-serif;
+    
+    --ambient-shadow: 0 16px 48px rgba(34, 27, 11, 0.08);
 }
 
 * {
@@ -21,11 +35,8 @@
 }
 
 body {
-    background-color: var(--bg-color);
-    background-image:
-        radial-gradient(circle at 50% 0%, #2a1b5c 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(249, 216, 119, 0.05) 0%, transparent 40%);
-    color: var(--text-primary);
+    background-color: var(--surface);
+    color: var(--on-surface);
     font-family: var(--font-body);
     min-height: 100vh;
     display: flex;
@@ -56,11 +67,11 @@ body {
 }
 
 .glass-panel {
-    background: var(--panel-bg);
+    background: rgba(255, 248, 242, 0.75);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--panel-border);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid var(--ghost-border);
+    box-shadow: var(--ambient-shadow);
 }
 
 header {
@@ -69,24 +80,22 @@ header {
 
 h1 {
     font-family: var(--font-head);
-    color: var(--gold);
-    font-size: 2.5rem;
-    letter-spacing: 4px;
-    text-shadow: 0 0 15px var(--gold-glow);
+    color: var(--primary);
+    font-size: 3.5rem;
+    letter-spacing: 2px;
     margin-bottom: 0.2rem;
 }
 
 .subtitle {
     font-size: 1.1rem;
-    color: var(--purple);
-    font-weight: 300;
-    letter-spacing: 1px;
+    color: var(--secondary);
+    font-weight: 400;
 }
 
 h2,
 h3 {
     font-family: var(--font-head);
-    color: var(--purple);
+    color: var(--primary);
     margin-bottom: 1rem;
     font-size: 1.5rem;
 }
@@ -115,63 +124,46 @@ h3 {
     width: 100%;
     max-width: 700px;
     aspect-ratio: 1;
-    border-radius: 12px;
+    border-radius: 4px;
     position: relative;
     overflow: hidden;
     padding: 0;
-    border: 2px solid var(--purple);
-    box-shadow: 0 0 30px var(--purple-glow);
+    border: none;
+    gap: 2px;
+    background-color: var(--ghost-border);
+    box-shadow: var(--ambient-shadow);
 }
 
 .board-cell {
-    border: 1px solid rgba(138, 121, 255, 0.15);
+    border: none;
+    background-color: var(--surface-variant);
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 1.2rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(34, 27, 11, 0.4);
     position: relative;
     user-select: none;
     transition: all 0.3s ease;
 }
 
 /* Stage Colors */
-.stage-0 {
-    background: rgba(255, 71, 102, 0.05);
-}
-
-/* Mithyatva */
-.stage-1 {
-    background: rgba(249, 216, 119, 0.05);
-}
-
-/* Awareness */
-.stage-2 {
-    background: rgba(0, 255, 170, 0.05);
-}
-
-/* Discipline */
-.stage-3 {
-    background: rgba(138, 121, 255, 0.08);
-}
-
-/* Renunciation */
-.stage-4 {
-    background: rgba(255, 255, 255, 0.1);
-}
+.stage-0 { background: var(--surface-container-lowest); }
+.stage-1 { background: var(--surface-container-low); }
+.stage-2 { background: var(--surface-variant); }
+.stage-3 { background: #e7d8bf; } 
+.stage-4 { background: #fbecd2; } 
 
 /* Liberation */
 
 /* Highlights for snakes/ladders */
 .has-ladder {
-    color: var(--success);
-    text-shadow: 0 0 8px var(--success);
+    color: var(--secondary);
 }
 
 .has-snake {
     color: var(--danger);
-    text-shadow: 0 0 8px var(--danger);
 }
 
 .player-token {
@@ -222,37 +214,36 @@ h3 {
 }
 
 .highlight {
-    color: var(--gold);
+    color: var(--primary);
     font-weight: 800;
     font-size: 1.2rem;
 }
 
 .dice {
     font-size: 6rem;
-    color: var(--gold);
+    color: var(--primary);
     line-height: 1;
-    text-shadow: 0 0 20px var(--gold-glow);
     margin-bottom: 1rem;
 }
 
 .glow-btn {
-    background: linear-gradient(135deg, #6c5ce7, #8a79ff);
-    color: white;
+    background: radial-gradient(circle at top left, var(--primary-container), var(--primary));
+    color: var(--on-primary);
     border: none;
     padding: 0.8rem 2rem;
     font-size: 1.1rem;
     font-family: var(--font-body);
     font-weight: 600;
-    border-radius: 30px;
+    border-radius: 4px;
     cursor: pointer;
-    box-shadow: 0 0 15px var(--purple-glow);
+    box-shadow: 0 4px 12px rgba(115, 92, 0, 0.4);
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .glow-btn:hover {
-    box-shadow: 0 0 25px var(--purple-glow), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 16px rgba(115, 92, 0, 0.6);
     transform: translateY(-2px);
 }
 
@@ -261,8 +252,8 @@ h3 {
 }
 
 .glow-btn:disabled {
-    background: #444;
-    color: #888;
+    background: var(--surface-variant);
+    color: var(--text-secondary);
     box-shadow: none;
     cursor: not-allowed;
     transform: none;
@@ -283,7 +274,7 @@ h3 {
 .progress-bar {
     width: 100%;
     height: 15px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--ghost-border);
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -310,8 +301,8 @@ h3 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
+    background: rgba(255, 248, 242, 0.5);
+    backdrop-filter: blur(8px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -326,13 +317,13 @@ h3 {
 }
 
 .modal-content {
-    background: linear-gradient(180deg, rgba(30, 25, 60, 0.95), rgba(15, 12, 30, 0.95));
-    border-radius: 20px;
+    background: var(--surface-container-lowest);
+    border-radius: 12px;
     padding: 3rem;
     max-width: 450px;
     text-align: center;
-    border: 1px solid var(--purple);
-    box-shadow: 0 0 50px var(--purple-glow);
+    border: 1px solid var(--ghost-border);
+    box-shadow: var(--ambient-shadow);
     transform: scale(1);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -344,14 +335,13 @@ h3 {
 .modal-icon {
     font-size: 4rem;
     margin: 1rem 0;
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
 }
 
 #modal-desc {
     font-size: 1.2rem;
     line-height: 1.6;
     margin-bottom: 2rem;
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
 
 /* Animations that JS can toggle */
@@ -470,10 +460,10 @@ h3 {
 }
 
 .avatar-card {
-    background: rgba(255,255,255,0.05);
-    border: 2px solid var(--purple);
-    border-radius: 12px;
-    padding: 1.5rem;
+    background: transparent;
+    border: 1px solid var(--ghost-border);
+    border-radius: 4px;
+    padding: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
     width: 120px;
@@ -484,14 +474,14 @@ h3 {
 }
 
 .avatar-card:hover {
-    background: rgba(138, 121, 255, 0.15);
+    background: var(--surface-container-low);
     transform: translateY(-5px);
 }
 
 .avatar-card.selected {
-    background: rgba(138, 121, 255, 0.3);
-    border-color: var(--gold);
-    box-shadow: 0 0 20px rgba(249, 216, 119, 0.5);
+    background: var(--surface-variant);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(115, 92, 0, 0.1);
     transform: translateY(-5px);
 }
 
