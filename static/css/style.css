@@ -1,31 +1,44 @@
 :root {
-    --primary: #735c00;
-    --primary-container: #f9d877;
-    --on-primary: #ffffff;
-    --secondary: #5945ca;
+    --primary: #e9c349; /* Golden Pigment */
+    --primary-container: #423300;
+    --on-primary: #3c2f00;
+    --secondary: #ffb4ac; /* Cinnabar Red */
+    --tertiary: #fabd00; /* Turmeric Yellow */
     
-    --surface: #fff8f2;
-    --on-surface: #221b0b;
-    --text-secondary: #4c4637;
+    --surface: #111125; /* Celestial Void */
+    --on-surface: #e2e0fc;
+    --text-secondary: #c9c4d5;
     
-    --surface-container-lowest: #ffffff;
-    --surface-container-low: #fff2dd;
-    --surface-variant: #f0e1c7;
-    --ghost-border: rgba(207, 198, 178, 0.3);
+    --surface-container-lowest: #0c0c1f;
+    --surface-container-low: #1a1a2e;
+    --surface-variant: #333348;
+    --ghost-border: rgba(146, 143, 158, 0.2);
     
-    /* Legacy mappings to ease script.js transition */
-    --gold: #f9d877;
-    --gold-glow: rgba(249, 216, 119, 0.4);
-    --purple: #735c00; 
-    --purple-glow: rgba(115, 92, 0, 0.2); 
-    --danger: #ba1a1a;
-    --success: #5945ca; 
-    --text-primary: #221b0b;
+    /* Parchment specific for the grid */
+    --parchment: #fdf6e3;
+    --parchment-ink: #423300;
+    
+    /* Legacy mappings */
+    --gold: #e9c349;
+    --gold-glow: rgba(233, 195, 73, 0.3);
+    --purple: #fabd00; 
+    --purple-glow: rgba(250, 189, 0, 0.2); 
+    --danger: #ffb4ac;
+    --success: #e9c349; 
+    --text-primary: #e2e0fc;
     
     --font-head: 'Noto Serif', serif;
-    --font-body: 'Be Vietnam Pro', sans-serif;
+    --font-body: 'Manrope', sans-serif;
     
-    --ambient-shadow: 0 16px 48px rgba(34, 27, 11, 0.08);
+    --ambient-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+.parchment-texture {
+    background-color: var(--parchment) !important;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(66, 51, 0, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(66, 51, 0, 0.05) 0px, transparent 50%);
+    color: var(--parchment-ink) !important;
 }
 
 * {

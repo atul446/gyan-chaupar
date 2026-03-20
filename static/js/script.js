@@ -63,8 +63,7 @@ function playSnakeSound() {
 }
 
 // Game Config
-const TOTAL_TILES = 100;
-const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+const diceFaces = ['<span class="material-symbols-outlined">filter_1</span>', '<span class="material-symbols-outlined">filter_2</span>', '<span class="material-symbols-outlined">filter_3</span>', '<span class="material-symbols-outlined">filter_4</span>', '<span class="material-symbols-outlined">filter_5</span>', '<span class="material-symbols-outlined">filter_6</span>'];
 
 const availableAvatars = [
     { id: 'sadhu', name: 'The Ascetic', imgSrc: 'static/img/avatar_ascetic_1773934187252.png', color: '#8a79ff', glow: 'rgba(138, 121, 255, 0.7)' },
@@ -258,17 +257,14 @@ function initBoard() {
             let stageIndex = Math.ceil(num / 20) - 1;
             cls += ` stage-${stageIndex}`;
 
-            if (ladders[num]) {
-                cls += ' has-ladder';
-            }
-            if (snakes[num]) {
-                cls += ' has-snake';
-            }
+            cls += ' parchment-texture';
 
             cellsHTML += `<div class="${cls}" data-cell="${num}">
-                <div style="text-align:center;">
+                <div style="font-size: 0.75rem; font-weight: 800; position: absolute; top: 2px; left: 4px; opacity: 0.6;">
                     ${num}
                 </div>
+                ${ladders[num] ? '<span class="material-symbols-outlined" style="opacity: 0.5;">keyboard_double_arrow_up</span>' : ''}
+                ${snakes[num] ? '<span class="material-symbols-outlined" style="opacity: 0.5;">warning</span>' : ''}
             </div>`;
         });
     }
